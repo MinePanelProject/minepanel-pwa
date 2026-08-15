@@ -1,0 +1,133 @@
+{
+	"updatedAt": "2026-08-15",
+	"phases": [
+		{
+			"id": "1",
+			"label": "Phase 1",
+			"name": "Dashboard Shell",
+			"status": "completed",
+			"description": "The live discovery shell at app.minepanel.xyz: a static, installable React PWA that connects the browser directly to operator-selected self-hosted backends.",
+			"progress": 100,
+			"progressLabel": "100% complete",
+			"items": [
+				{
+					"text": "Deploy to app.minepanel.xyz via Cloudflare Pages",
+					"done": true
+				},
+				{
+					"text": "Multi-backend instance registry (IndexedDB, local metadata only)",
+					"done": true
+				},
+				{
+					"text": "Strict origin validation (public HTTPS DNS only; rejects IPs, localhost, .local)",
+					"done": true
+				},
+				{
+					"text": "Backend probe via public GET /api/info (name & version)",
+					"done": true
+				},
+				{
+					"text": "Installable PWA with same-origin app-shell caching",
+					"done": true
+				},
+				{
+					"text": "Security headers, strict CSP and SPA fallback on Cloudflare Pages",
+					"done": true
+				},
+				{
+					"text": "Unit tests for origin validation, instance registry and backend client",
+					"done": true
+				}
+			]
+		},
+		{
+			"id": "1.5",
+			"label": "Phase 1.5",
+			"name": "Hosted Authentication",
+			"status": "planned",
+			"description": "Login, sessions and 2FA for the hosted dashboard. Blocked on owner decision D-1 (hosted-frontend cross-origin auth: CHIPS partitioned cookies as primary, PKCE authorization-code fallback) and backend capability discovery (B-P2-11).",
+			"progress": 0,
+			"progressLabel": null,
+			"items": [
+				{
+					"text": "Resolve D-1: cross-origin HttpOnly cookie design (CHIPS / PKCE fallback)",
+					"done": false
+				},
+				{
+					"text": "Capability discovery from /api/info (never infer from version strings)",
+					"done": false
+				},
+				{
+					"text": "Login, refresh single-flight and logout flows",
+					"done": false
+				},
+				{
+					"text": "2FA (TOTP) challenge flow",
+					"done": false
+				},
+				{
+					"text": "OAuth (Google / GitHub) per backend Phase 1.5",
+					"done": false
+				}
+			]
+		},
+		{
+			"id": "2",
+			"label": "Phase 2",
+			"name": "Dashboard Management",
+			"status": "planned",
+			"description": "Authenticated server management surface: lifecycle controls, host metrics and role-aware UI against the backend's REST + WebSocket API.",
+			"progress": 0,
+			"progressLabel": null,
+			"items": [
+				{
+					"text": "Server list and lifecycle controls (create, start, stop, restart, delete)",
+					"done": false
+				},
+				{
+					"text": "Host metrics (CPU, RAM, disk) via WebSocket",
+					"done": false
+				},
+				{
+					"text": "Role-aware interface (ADMIN / MOD / USER, per-server permissions)",
+					"done": false
+				},
+				{
+					"text": "Admin user management and approval flows",
+					"done": false
+				}
+			]
+		},
+		{
+			"id": "3",
+			"label": "Phase 3",
+			"name": "Operations",
+			"status": "future",
+			"description": "Real-time console, backups, scheduled tasks, notifications, file manager and plugin management as the backend Phase 3 API lands.",
+			"progress": 0,
+			"progressLabel": null,
+			"items": [
+				{
+					"text": "Real-time console and server event stream",
+					"done": false
+				},
+				{
+					"text": "Backups and scheduled tasks",
+					"done": false
+				},
+				{
+					"text": "Notifications",
+					"done": false
+				},
+				{
+					"text": "File manager",
+					"done": false
+				},
+				{
+					"text": "Plugin management (Modrinth / Hangar)",
+					"done": false
+				}
+			]
+		}
+	]
+}
