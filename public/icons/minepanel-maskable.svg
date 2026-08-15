@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>MinePanel</title>
+  <rect width="512" height="512" fill="#10130f" />
+  <path d="M74 100h364v312H74z" fill="#1d241c" stroke="#7fc95b" stroke-width="20" />
+  <path d="M74 100h364v90H74z" fill="#5d9e3e" />
+  <path d="M74 190h364" stroke="#314d28" stroke-width="20" />
+  <path d="M144 260h224v28H144zm0 62h148v28H144zm0 62h188v28H144z" fill="#dbe9d5" />
+  <circle cx="388" cy="396" r="22" fill="#69f45a" />
+</svg>

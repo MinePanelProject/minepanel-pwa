@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+
+:root {
+  color: #e7eee2;
+  background: #10130f;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(rgba(16, 19, 15, 0.94), rgba(16, 19, 15, 0.98)),
+    repeating-linear-gradient(90deg, rgba(127, 201, 91, 0.035) 0 1px, transparent 1px 44px),
+    #10130f;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #f5c451;
+  outline-offset: 3px;
+}
+
+.pixel-title {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-surface {
+  border: 2px solid #354332;
+  background: rgba(29, 36, 28, 0.96);
+  box-shadow: 5px 5px 0 #080a08, inset 0 0 0 1px rgba(219, 233, 213, 0.06);
+}
+
+.status-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: #69f45a;
+  box-shadow: 0 0 12px rgba(105, 244, 90, 0.65);
+}
