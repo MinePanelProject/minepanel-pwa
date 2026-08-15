@@ -1,6 +1,6 @@
 # MinePanel PWA
 
-MinePanel PWA is the planned hosted dashboard for self-hosted MinePanel backends. It is a static React application intended for `https://app.minepanel.xyz` and is distinct from:
+MinePanel PWA is the hosted dashboard for self-hosted MinePanel backends, live at `https://app.minepanel.xyz` and deployed via Cloudflare Pages. It is a static React application and is distinct from:
 
 - [`minepanel-backend`](https://github.com/MinePanelProject/minepanel-backend): the operator-owned NestJS API, PostgreSQL, Caddy, and Docker runtime.
 - [`minepanel-site`](https://github.com/MinePanelProject/minepanel-site): the marketing site at `https://minepanel.xyz`.
