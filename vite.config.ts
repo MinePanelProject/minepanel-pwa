@@ -21,21 +21,27 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icons/minepanel.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
+            src: '/icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/icons/minepanel-maskable.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
+            src: '/icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: '/icons/maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'maskable',
           },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,webmanifest,png,woff2}'],
         // Precache only application assets; no runtime caching rule exists for backend or GIS traffic.
         navigateFallbackDenylist: [/^\/api(?:\/|$)/, /^\/socket\.io(?:\/|$)/],
       },
