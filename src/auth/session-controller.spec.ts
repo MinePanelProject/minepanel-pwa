@@ -25,6 +25,20 @@ const controllerFor = (client: Partial<BackendClient>) => {
   return { controller, states, onBoundary };
 };
 
+const flush = async (): Promise<void> => {
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+};
+
+const createDeferred = <T>(): { promise: Promise<T>; resolve: (value: T) => void; reject: (reason?: unknown) => void } => {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+};
+
 describe('SessionController', () => {
   it('restores a profile after the broker rotates one expired access cookie', async () => {
     installLocks();
@@ -195,5 +209,223 @@ describe('terminal refresh boundary (Finding 1 regression)', () => {
     void controller.handleTerminalRefresh();
     expect(states.at(-1)).toBeUndefined();
     expect(onBoundary).not.toHaveBeenCalled();
+  });
+});
+
+describe('session authority race (MP-BASELINE-SESSION-001)', () => {
+  it('terminal refresh cannot be overwritten by a stale profile restore', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+    };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)).toEqual({ kind: 'authenticated', profile: { id: 'user-a', username: 'alex', role: 'USER' } });
+
+    const deferred = createDeferred<AuthProfile | null>();
+    // test seam — reassign mock for pending restore
+    const mockableClient = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClient.getProfile = vi.fn(() => deferred.promise);
+    void controller.restoreProfile();
+    controller.handleTerminalRefresh();
+    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'expired' });
+
+    deferred.resolve(profile);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'expired' });
+  });
+
+  it('whole-session clear cannot be overwritten by a stale profile restore', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+    };
+    const states: ShellSession[] = [];
+    const onBoundary = vi.fn();
+    const onWholeSessionEnded = vi.fn();
+    const controller = new SessionController({
+      client: client as unknown as BackendClient,
+      onState: (state) => states.push(state),
+      onInfo: vi.fn(),
+      onBoundary,
+      onWholeSessionEnded,
+    });
+    await controller.start();
+    expect(states.at(-1)).toEqual({ kind: 'authenticated', profile: { id: 'user-a', username: 'alex', role: 'USER' } });
+
+    const deferred = createDeferred<AuthProfile | null>();
+    const mockableClient = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClient.getProfile = vi.fn(() => deferred.promise);
+    void controller.restoreProfile();
+    controller.handleWholeSessionEnded();
+    expect(states.at(-1)).toEqual({ kind: 'anonymous' });
+
+    deferred.resolve(profile);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'anonymous' });
+  });
+
+  it('successful logout cannot be overwritten by a stale profile restore', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+      logout: vi.fn().mockResolvedValue(undefined),
+    };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)?.kind).toBe('authenticated');
+
+    const deferred = createDeferred<AuthProfile | null>();
+    const mockableClient = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClient.getProfile = vi.fn(() => deferred.promise);
+    void controller.restoreProfile();
+    await controller.signOut();
+    expect(states.at(-1)).toEqual({ kind: 'anonymous' });
+
+    deferred.resolve(profile);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'anonymous' });
+  });
+
+  it('successful logout-all cannot be overwritten by a stale profile restore', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+      logoutAll: vi.fn().mockResolvedValue(undefined),
+    };
+    const states: ShellSession[] = [];
+    const onBoundary = vi.fn();
+    const onWholeSessionEnded = vi.fn();
+    const controller = new SessionController({
+      client: client as unknown as BackendClient,
+      onState: (state) => states.push(state),
+      onInfo: vi.fn(),
+      onBoundary,
+      onWholeSessionEnded,
+    });
+    await controller.start();
+    expect(states.at(-1)?.kind).toBe('authenticated');
+
+    const deferred = createDeferred<AuthProfile | null>();
+    const mockableClient = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClient.getProfile = vi.fn(() => deferred.promise);
+    void controller.restoreProfile();
+    await controller.signOutAll();
+    expect(states.at(-1)).toEqual({ kind: 'anonymous' });
+    expect(onBoundary).toHaveBeenCalled();
+    expect(onWholeSessionEnded).toHaveBeenCalledTimes(1);
+
+    deferred.resolve(profile);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'anonymous' });
+  });
+
+  it('password-change-required cannot be overwritten by a stale profile restore', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+    };
+    const states: ShellSession[] = [];
+    const onBoundary = vi.fn();
+    const onWholeSessionEnded = vi.fn();
+    const controller = new SessionController({
+      client: client as unknown as BackendClient,
+      onState: (state) => states.push(state),
+      onInfo: vi.fn(),
+      onBoundary,
+      onWholeSessionEnded,
+    });
+    await controller.start();
+    expect(states.at(-1)?.kind).toBe('authenticated');
+
+    const deferred = createDeferred<AuthProfile | null>();
+    const mockableClient = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClient.getProfile = vi.fn(() => deferred.promise);
+    void controller.restoreProfile();
+    controller.transitionToPasswordChangeRequired();
+    expect(states.at(-1)).toEqual({ kind: 'password-change-required' });
+
+    deferred.resolve(profile);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'password-change-required' });
+  });
+
+  it('banned state cannot be overwritten by a stale profile restore', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+    };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)?.kind).toBe('authenticated');
+
+    const deferred = createDeferred<AuthProfile | null>();
+    const mockableClient = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClient.getProfile = vi.fn(() => deferred.promise);
+    void controller.restoreProfile();
+    // test seam — exercise terminal banned boundary without a second restore increment
+    const controllerWithPrivate = controller as unknown as {
+      mapTerminalError: (error: unknown, restoring: boolean) => void;
+    };
+    controllerWithPrivate.mapTerminalError(
+      new BackendApiError(403, 'banned', 'AccountBanned'),
+      true,
+    );
+    expect(states.at(-1)).toEqual({ kind: 'account-banned' });
+
+    deferred.resolve(profile);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'account-banned' });
+  });
+
+  it('latest restore still wins and older restores are ignored', async () => {
+    installLocks();
+    const client: Partial<BackendClient> = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn().mockResolvedValue(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+    };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)?.kind).toBe('authenticated');
+
+    const deferredA = createDeferred<AuthProfile | null>();
+    const deferredB = createDeferred<AuthProfile | null>();
+    const profileB: AuthProfile = { id: 'user-b', username: 'bob', role: 'USER' };
+
+    const mockableClientA = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClientA.getProfile = vi.fn(() => deferredA.promise);
+    void controller.restoreProfile();
+    const mockableClientB = client as unknown as { getProfile: ReturnType<typeof vi.fn> };
+    mockableClientB.getProfile = vi.fn(() => deferredB.promise);
+    void controller.restoreProfile();
+
+    deferredA.resolve(profile);
+    await flush();
+    // A is stale, latest B still pending, state should remain authenticated from initial start, not yet B
+    expect(states.at(-1)).toEqual({ kind: 'authenticated', profile: { id: 'user-a', username: 'alex', role: 'USER' } });
+
+    deferredB.resolve(profileB);
+    await flush();
+    await flush();
+    expect(states.at(-1)).toEqual({ kind: 'authenticated', profile: { id: 'user-b', username: 'bob', role: 'USER' } });
   });
 });

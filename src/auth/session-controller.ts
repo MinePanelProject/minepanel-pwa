@@ -60,6 +60,15 @@ export class SessionController {
   }
 
   /**
+   * Terminal or whole-session boundaries must invalidate any async restore
+   * started before the boundary so a stale successful profile cannot
+   * resurrect a cleared session.
+   */
+  private invalidateOperations(): void {
+    this.operation += 1;
+  }
+
+  /**
    * Terminally invalid refresh session (external-review Finding 1): the
    * refresh coordinator proved this panel's session cannot be restored. Leave
    * the authenticated state, run the panel boundary (query scope cancel +
@@ -69,6 +78,7 @@ export class SessionController {
    */
   handleTerminalRefresh(): void {
     if (this.state.kind === 'authenticated') {
+      this.invalidateOperations();
       this.hadAuthenticatedSession = false;
       this.options.onBoundary();
       this.setState({ kind: 'error', reason: 'expired' });
@@ -78,6 +88,7 @@ export class SessionController {
   /** Another tab reported a server-wide session termination. */
   handleWholeSessionEnded(): void {
     if (this.state.kind === 'authenticated' || this.state.kind === 'error') {
+      this.invalidateOperations();
       this.hadAuthenticatedSession = false;
       this.options.onBoundary();
       this.setState({ kind: 'anonymous' });
@@ -180,6 +191,7 @@ export class SessionController {
 
   async signOut(): Promise<void> {
     await this.options.client.logout();
+    this.invalidateOperations();
     this.hadAuthenticatedSession = false;
     this.options.onBoundary();
     this.setState({ kind: 'anonymous' });
@@ -187,6 +199,7 @@ export class SessionController {
 
   async signOutAll(): Promise<void> {
     await this.options.client.logoutAll();
+    this.invalidateOperations();
     this.hadAuthenticatedSession = false;
     this.options.onBoundary();
     this.options.onWholeSessionEnded?.();
@@ -194,6 +207,7 @@ export class SessionController {
   }
 
   transitionToPasswordChangeRequired(): void {
+    this.invalidateOperations();
     this.options.onBoundary();
     this.options.onWholeSessionEnded?.();
     this.setState({ kind: 'password-change-required' });
@@ -237,6 +251,7 @@ export class SessionController {
       // Terminal refresh failure ends the session authority: clear the
       // prior-auth marker so a later retry transitions to the anonymous
       // presentation instead of re-entering the expired loop.
+      this.invalidateOperations();
       const wasAuthenticated = this.hadAuthenticatedSession;
       this.hadAuthenticatedSession = false;
       this.options.onBoundary();
@@ -245,26 +260,29 @@ export class SessionController {
     }
     this.mapTerminalError(error, true);
   }
-
   private mapTerminalError(error: unknown, restoring: boolean): void {
     if (isApiCode(error, 'PasswordChangeRequired')) {
+      this.invalidateOperations();
       this.options.onBoundary();
       this.options.onWholeSessionEnded?.();
       this.setState({ kind: 'password-change-required' });
       return;
     }
     if (isApiCode(error, 'AccountPending')) {
+      this.invalidateOperations();
       this.options.onBoundary();
       this.setState({ kind: 'account-pending' });
       return;
     }
     if (isApiCode(error, 'AccountBanned')) {
+      this.invalidateOperations();
       this.options.onBoundary();
       this.options.onWholeSessionEnded?.();
       this.setState({ kind: 'account-banned' });
       return;
     }
     if (isApiCode(error, 'CsrfOriginForbidden') || error instanceof BackendClientError && error.kind === 'invalid-response') {
+      this.invalidateOperations();
       this.options.onBoundary();
       this.setState({ kind: 'error', reason: 'incompatible' });
       return;
@@ -274,6 +292,7 @@ export class SessionController {
       return;
     }
     if (restoring) {
+      this.invalidateOperations();
       this.options.onBoundary();
       this.setState({ kind: 'error', reason: 'incompatible' });
     }
