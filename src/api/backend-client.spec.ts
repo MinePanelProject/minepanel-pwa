@@ -432,3 +432,32 @@ describe('requestable server discovery (owner-approved slice)', () => {
     });
   });
 });
+describe('default fetch receiver binding (Firefox regression)', () => {
+  const originalFetch = globalThis.fetch;
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it('invokes the default global fetch with a safe receiver, not the BackendClient instance', async () => {
+    // Receiver recorded on a property, not aliased to a local variable, so the
+    // invocation `this` is observable without tripping no-this-alias.
+    const probe = { receiver: undefined as unknown };
+    globalThis.fetch = function (this: unknown) {
+      probe.receiver = this;
+      return Promise.resolve(
+        new Response(JSON.stringify(panelInfo()), { headers: { 'Content-Type': 'application/json' } }),
+      );
+    } as typeof fetch;
+
+    // Replaced BEFORE construction so the counterfactual (constructor captures
+    // `fetch` by default and calls it as `this.fetchImplementation(...)`) stores
+    // the recording function and fails the receiver assertion below.
+    const client = new BackendClient('https://panel.example.com');
+
+    await expect(client.getInfo()).resolves.toEqual(panelInfo());
+
+    expect(probe.receiver).not.toBe(client);
+    expect(probe.receiver).toBeUndefined();
+  });
+});

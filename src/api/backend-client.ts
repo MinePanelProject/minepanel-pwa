@@ -40,6 +40,17 @@ export type GoogleLoginResult =
 
 type FetchImplementation = typeof fetch;
 
+/**
+ * Production default: re-invokes the global `fetch` as a plain function.
+ * Assigning the native Window.fetch to an instance property and calling it as
+ * `this.fetchImplementation(...)` makes the BackendClient the receiver, which
+ * Firefox rejects ("fetch called on an object that does not implement
+ * interface Window"). The arrow wrapper keeps injected test/custom fetch
+ * implementations receiver-neutral while restoring a valid receiver for the
+ * native global.
+ */
+const defaultFetch: FetchImplementation = (input, init) => fetch(input, init);
+
 type RequestOptions = {
   credentials?: RequestCredentials;
   headers?: HeadersInit;
@@ -111,13 +122,15 @@ const isTwoFactorChallenge = (value: unknown): value is TwoFactorChallenge => {
 export const supportsGoogleLogin = (info: PanelInfo, googleClientId: string): boolean =>
   info.api.protocolVersion === 1 && info.capabilities.auth.googleOAuth && googleClientId.trim().length > 0;
 
-/**
- * Browser-to-backend client for one canonical panel origin. Every
- * authenticated request uses `credentials: 'include'` and browser-managed
- * HttpOnly cookies; no MinePanel token ever passes through JavaScript.
- */
 export class BackendClient {
+  /**
+   * Browser-to-backend client for one canonical panel origin. Every
+   * authenticated request uses `credentials: 'include'` and browser-managed
+   * HttpOnly cookies; no MinePanel token ever passes through JavaScript.
+   */
   readonly origin: string;
+
+  private readonly fetchImplementation: FetchImplementation;
 
   /**
    * Panel-scoped session-boundary callback (Finding 1). Called exactly once
@@ -130,7 +143,8 @@ export class BackendClient {
    */
   onSessionTerminal: (() => void) | null = null;
 
-  constructor(origin: string, private readonly fetchImplementation: FetchImplementation = fetch) {
+  constructor(origin: string, fetchImplementation: FetchImplementation = defaultFetch) {
+    this.fetchImplementation = fetchImplementation;
     this.origin = validatePanelOrigin(origin);
   }
 
