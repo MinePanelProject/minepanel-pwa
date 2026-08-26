@@ -21,8 +21,16 @@ export const PanelRoute = (): React.JSX.Element => {
     enabled: Boolean(instanceId),
   });
   const instance = instanceQuery.data;
+  const id = instance?.id;
   const origin = instance?.origin;
-  const client = useMemo(() => (origin ? new BackendClient(origin) : null), [origin]);
+  const identity = useMemo(
+    () => (id === undefined || origin === undefined ? null : { id, origin }),
+    [id, origin],
+  );
+  const client = useMemo(
+    () => (identity === null ? null : new BackendClient(identity.origin)),
+    [identity],
+  );
 
   if (instanceQuery.isLoading) {
     return (
@@ -34,7 +42,7 @@ export const PanelRoute = (): React.JSX.Element => {
     );
   }
 
-  if (!instance) {
+  if (!instance || identity === null || client === null) {
     return (
       <main className="p-4 sm:p-8">
         <section className="panel-surface mx-auto max-w-xl p-7">
@@ -49,8 +57,6 @@ export const PanelRoute = (): React.JSX.Element => {
       </main>
     );
   }
-
-  const identity = { id: instance.id, origin: instance.origin };
 
   // Hard remount contract (external-review Finding 2): React Router reuses the
   // same route component when /panel/A/<route> navigates to /panel/B/<route>,

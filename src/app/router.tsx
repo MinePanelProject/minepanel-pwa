@@ -33,10 +33,10 @@ export const router = createBrowserRouter([
       { path: 'account', Component: AccountPage },
       { path: 'security', Component: SecurityPage },
       { path: 'setup', Component: SetupPage },
-      { path: 'administration', Component: (): React.JSX.Element => <Navigate to="admin/users" replace /> },
+      { path: 'administration', Component: (): React.JSX.Element => <Navigate to="../admin/users" relative="route" replace /> },
       { path: 'admin/users', Component: AdminUsersPage },
       { path: 'admin/users/:userId', Component: AdminUserDetailPage },
-      { path: '*', Component: (): React.JSX.Element => <Navigate to="." replace /> },
+      { path: '*', Component: (): React.JSX.Element => <Navigate to=".." relative="route" replace /> },
     ],
   },
 ]);
