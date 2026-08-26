@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { BackendClient, type PanelInfo } from '@/api/backend-client';
+import { GoogleAuthControls } from '@/auth/google-auth-controls';
 import { getProbeErrorMessage } from '@/api/errors';
 import { useInstanceRegistry } from '@/instances/use-instance-registry';
 
@@ -20,6 +21,11 @@ export const PanelPage = (): React.JSX.Element => {
   });
   const instance = instanceQuery.data;
   const instanceOrigin = instance?.origin;
+  const backendClient = useMemo(
+    () => (instanceOrigin ? new BackendClient(instanceOrigin) : null),
+    [instanceOrigin],
+  );
+
   const [infoState, setInfoState] = useState<PanelInfoState>({ origin: null, status: 'idle' });
 
   useEffect(() => {
@@ -65,6 +71,7 @@ export const PanelPage = (): React.JSX.Element => {
 
   const currentInfoState =
     infoState.origin === instance.origin ? infoState : { origin: instance.origin, status: 'loading' as const };
+
   const panelInfo = currentInfoState.status === 'success' ? currentInfoState.info : undefined;
   let connectionLabel = 'Checking public panel info';
   let connectionDetail = 'Connecting directly to the selected backend.';
@@ -98,14 +105,15 @@ export const PanelPage = (): React.JSX.Element => {
           </div>
           <div>
             <p className="pixel-title text-xs text-[#aab7a3]">Capabilities</p>
-            <p className="mt-2 text-lg font-bold text-[#f1f6ed]">Unknown</p>
+            <p className="mt-2 text-lg font-bold text-[#f1f6ed]">
+              {panelInfo?.capabilities.auth.googleOAuth ? 'Google OAuth available' : 'Google OAuth unavailable'}
+            </p>
           </div>
         </div>
 
-        <div className="mt-8 border-l-4 border-[#f5c451] bg-[#302a19] px-5 py-4 text-sm leading-6 text-[#f6e5a8]">
-          Hosted authentication is not implemented. MinePanel decision D-1 must be resolved in the backend
-          before this hosted dashboard can manage servers or connect to authenticated real-time features.
-        </div>
+        {panelInfo && backendClient && (
+          <GoogleAuthControls key={backendClient.origin} backend={backendClient} info={panelInfo} />
+        )}
       </div>
 
       <aside className="panel-surface h-fit p-6">

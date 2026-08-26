@@ -36,7 +36,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,webmanifest}'],
-        navigateFallbackDenylist: [/^\/api\//, /^\/socket\.io\//],
+        // Precache only application assets; no runtime caching rule exists for backend or GIS traffic.
+        navigateFallbackDenylist: [/^\/api(?:\/|$)/, /^\/socket\.io(?:\/|$)/],
       },
     }),
   ],

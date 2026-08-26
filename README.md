@@ -19,16 +19,17 @@ A backend must be configured with its exact frontend origin, for example `CORS_O
 
 ## Current status
 
-This repository is a small discovery shell, **not a production-ready hosted dashboard**. It can:
+This repository remains a small discovery shell. It can:
 
 - save multiple public HTTPS MinePanel backend origins;
 - validate and probe the selected backend's public `GET /api/info` endpoint;
-- show its public name/version in an instance shell;
+- restore an existing browser-managed session for the selected backend;
+- sign in or link an account through Google Identity Services when the selected backend advertises the protocol-1 Google capability;
 - install as a PWA and cache only the same-origin application shell.
 
-Hosted authentication is deliberately unavailable. MinePanel backend decision **D-1** remains unresolved: current cross-origin cookie behavior lacks the decided hosted-auth design, and the backend does not provide the approved PKCE fallback. Consequently this app has no login, token storage, refresh, 2FA, authenticated server-management, or authenticated WebSocket controls.
+Google sign-in is capability-gated, not version-string-gated: the app requires `api.protocolVersion === 1` and `capabilities.auth.googleOAuth === true`. It reads and validates the complete protocol-1 info contract, including `partitionedCookies`, `pkceAuthorizationCode`, and `realtime.websocketTicket`; the latter flags are displayed/discovered but are not overloaded as Google-login signals.
 
-`name` and `version` from `/api/info` are display-only. They do not enable capabilities; explicit backend capability discovery will be introduced only after the backend publishes a stable contract.
+`GET /api/info` deliberately exposes only a boolean Google OAuth capability, not a client ID. Each static PWA deployment therefore supplies its public Google web client ID as the build-time `VITE_GOOGLE_CLIENT_ID` variable. This ID is an OAuth audience identifier, not a credential or MinePanel token. It must match the backend's `GOOGLE_CLIENT_ID`; configure both for the same Google OAuth web client.
 
 ## Supported connection path
 
@@ -78,12 +79,14 @@ public/
 
 Cloudflare Pages deployment uses the static `_redirects` fallback (`/* /index.html 200`). `_headers` sets mutable HTML, manifest, and service-worker files to revalidate while Vite's hashed `/assets/*` remain immutable.
 
-The CSP is intentionally strict for executable and rendered content: only same-origin scripts, styles, images, fonts, manifests, and workers are allowed. `connect-src 'self' https: wss:` is the narrow necessary exception for direct connections to user-selected HTTPS/WSS panel backends. It is not an API proxy permission and does not permit `http:`, `ws:`, remote scripts, or remote HTML.
+The CSP remains strict for executable and rendered content. Google Identity Services is the sole remote-script exception: `script-src` permits only `https://accounts.google.com/gsi/client` and `frame-src` permits only `https://accounts.google.com/gsi/`, as documented by Google. `connect-src 'self' https: wss:` already permits GIS's HTTPS calls and direct connections to user-selected HTTPS/WSS panel backends, so no broader source expression was added. It is not an API proxy permission and does not permit `http:` or `ws:`.
 
 ## Security assumptions
 
 - The backend remains authoritative for authentication, authorization, and lifecycle decisions.
 - Browser-managed HttpOnly cookies are never inspected, copied, or stored by the app.
+- A Google ID credential is passed only from the GIS callback to its selected backend exchange, then discarded. It is never written to browser storage, the service worker, React state, or logs.
+- Google challenge requests omit credentials; Google exchanges, profile restore, link, and logout use `credentials: 'include'` against the exact selected origin.
 - Discovery uses `GET /api/info` with omitted credentials, `no-store`, no redirects, and no referrer.
 - An unreachable backend may be a network, certificate, CORS, or availability failure; browser details are intentionally not exposed.
 - Removing a saved panel only removes local metadata. It is not remote sign-out.
