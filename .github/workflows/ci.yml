@@ -2,8 +2,18 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - README.md
+      - roadmap.json
+      - LICENSE
+      - .github/FUNDING.yml
   push:
     branches: [master]
+    paths-ignore:
+      - README.md
+      - roadmap.json
+      - LICENSE
+      - .github/FUNDING.yml
 
 permissions:
   contents: read
