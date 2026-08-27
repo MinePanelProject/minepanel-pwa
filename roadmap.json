@@ -1,5 +1,5 @@
 {
-	"updatedAt": "2026-08-26",
+	"updatedAt": "2026-08-27",
 	"phases": [
 		{
 			"id": "1",
@@ -44,33 +44,45 @@
 			"id": "1.5",
 			"label": "Phase 1.5",
 			"name": "Hosted Authentication",
-			"status": "wip",
-			"description": "Cookie-based hosted authentication on CHIPS partitioned HttpOnly cookies: local login and registration, Google sign-in and linking, session restore with single-flight refresh, TOTP with one-time backup codes, session management, and first-admin setup.",
-			"progress": 83,
-			"progressLabel": "5/6 PWA auth items complete \u2014 GitHub OAuth pending backend implementation",
+			"status": "completed",
+			"description": "The supported protocol-1 hosted-auth contract is complete: CHIPS partitioned HttpOnly cookies + Web Locks for hosted sessions, with local auth, Google auth, TOTP, account security, and first-admin setup. Optional GitHub OAuth and conditional PKCE compatibility work remain separate future concerns; CHIPS/Web Locks are not universal across browsers.",
+			"progress": 100,
+			"progressLabel": "100% complete",
 			"items": [
 				{
-					"text": "Capability discovery from /api/info (never infer from version strings)",
+					"text": "Capability discovery from /api/info",
 					"done": true
 				},
 				{
-					"text": "Local login, registration and PENDING-account approval handling",
+					"text": "Local login, registration, and PENDING-account handling",
 					"done": true
 				},
 				{
-					"text": "Session restore with single-flight refresh (Web Locks) and cross-tab termination",
+					"text": "Session restore with single-flight refresh and cross-tab/session termination",
 					"done": true
 				},
 				{
-					"text": "2FA (TOTP) challenge, enrollment with QR and backup codes, disable",
+					"text": "TOTP challenge, enrollment, backup codes, and disable",
 					"done": true
 				},
 				{
-					"text": "Google OAuth login and account linking (authenticated linking via fresh single-use challenge)",
+					"text": "Google OAuth login and authenticated account linking",
 					"done": true
 				},
 				{
-					"text": "GitHub OAuth per backend Phase 1.5",
+					"text": "Password change and session management",
+					"done": true
+				},
+				{
+					"text": "First-admin setup",
+					"done": true
+				},
+				{
+					"text": "[Optional] GitHub OAuth when/if advertised by backend capability",
+					"done": false
+				},
+				{
+					"text": "[Conditional] PKCE authorization-code fallback if full hosted-browser compatibility remains required",
 					"done": false
 				}
 			]
@@ -115,7 +127,7 @@
 			"label": "Phase 3",
 			"name": "Operations",
 			"status": "future",
-			"description": "Real-time console, backups, scheduled tasks, notifications, file manager and plugin management as the backend Phase 3 API lands.",
+			"description": "Player management, real-time console, backups, scheduled tasks, notifications, file manager, and plugin/mod management as the backend Phase 3 API lands.",
 			"progress": 0,
 			"progressLabel": null,
 			"items": [
@@ -136,7 +148,11 @@
 					"done": false
 				},
 				{
-					"text": "Plugin management (Modrinth / Hangar)",
+					"text": "Player management",
+					"done": false
+				},
+				{
+					"text": "Plugin and mod management",
 					"done": false
 				}
 			]

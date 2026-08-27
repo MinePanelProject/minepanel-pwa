@@ -34,7 +34,8 @@ The hosted dashboard supports the delivered protocol-1 management surface:
 
 Backend authorization remains authoritative. Client-side role and status checks only shape the interface and never replace backend guards.
 
-Hosted cookie authentication requires a browser that supports the backend's CHIPS `Partitioned` cookies and the Web Locks API. The PWA refuses unsafe refresh behavior when Web Locks are unavailable. The backend must use exactly `CORS_ORIGIN=https://app.minepanel.xyz` for the hosted deployment. Same-origin deployment remains the broadest compatibility option.
+Hosted cookie authentication requires a browser that supports the backend's CHIPS `Partitioned` cookies and the Web Locks API. The PWA refuses unsafe refresh behavior when Web Locks are unavailable. This is the current supported hosted-auth contract; CHIPS and Web Locks are not universal across browsers. The backend must use exactly `CORS_ORIGIN=https://app.minepanel.xyz` for the hosted deployment. Same-origin deployment remains the broadest compatibility option.
+GitHub OAuth is optional when/if advertised by backend capability and is not a Phase 1.5 completion blocker. The PKCE authorization-code fallback is conditional future compatibility work only if full hosted cross-origin browser compatibility remains a product requirement; it is not implemented today.
 
 Google sign-in for accounts with enabled TOTP is not supported by the current backend contract: provider login returns `TwoFactorAuthenticationRequired` without a pre-auth challenge. Use password sign-in for those accounts until the backend supplies a constrained provider 2FA continuation.
 
