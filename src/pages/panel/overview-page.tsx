@@ -48,8 +48,8 @@ export const OverviewPage = (): React.JSX.Element => {
       <section className="panel-surface grid gap-5 p-5 sm:p-6" aria-labelledby="panel-overview-heading">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="pixel-title text-accent">[ Selected panel ]</p>
-            <h1 className="mt-3 text-2xl font-bold text-ink" id="panel-overview-heading">
+            <p className="pixel-label text-accent">[ Selected panel ]</p>
+            <h1 className="page-title mt-3 text-2xl font-bold text-ink" id="panel-overview-heading">
               {info?.name ?? panel.origin}
             </h1>
             <p className="mt-2 break-all font-mono text-sm text-ink-muted">{panel.origin}</p>
@@ -82,8 +82,8 @@ export const OverviewPage = (): React.JSX.Element => {
 
       <section className="grid gap-4" aria-labelledby="panel-sections-heading">
         <div>
-          <p className="pixel-title text-accent">[ Navigate ]</p>
-          <h2 className="mt-2 text-xl font-bold text-ink" id="panel-sections-heading">
+          <p className="pixel-label text-accent">[ Navigate ]</p>
+          <h2 className="section-title mt-2 text-xl font-bold text-ink" id="panel-sections-heading">
             Panel sections
           </h2>
         </div>
@@ -121,14 +121,14 @@ const connectionPresentation = (
 
 const OverviewFact = ({ label, value }: { label: string; value: string }): React.JSX.Element => (
   <div className="border border-line bg-bg p-3">
-    <dt className="pixel-title text-ink-muted">{label}</dt>
+    <dt className="pixel-label text-ink-muted">{label}</dt>
     <dd className="mt-2 font-bold text-ink">{value}</dd>
   </div>
 );
 
 const SectionLink = ({ to, title, detail }: { to: string; title: string; detail: string }): React.JSX.Element => (
-  <Link className="panel-surface-raised block min-h-28 p-4 transition hover:border-accent" to={to}>
+  <Link className="overview-section-link panel-surface-raised block p-4 transition hover:border-accent" to={to}>
     <h3 className="font-bold text-ink">{title}</h3>
-    <p className="mt-2 text-sm leading-6 text-ink-muted">{detail}</p>
+    <p className="mt-2 leading-6 text-ink-muted">{detail}</p>
   </Link>
 );

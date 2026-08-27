@@ -54,7 +54,7 @@ export const TwoFactorPage = (): React.JSX.Element => {
 
   return (
     <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6" aria-labelledby="two-factor-heading">
-      <div className="grid gap-2"><h1 className="pixel-title" id="two-factor-heading">Two-factor verification</h1><p className="text-sm text-ink-muted">Enter a current authenticator code or one backup code.</p></div>
+      <div className="grid gap-2"><h1 className="page-title" id="two-factor-heading">Two-factor verification</h1><p className="text-sm text-ink-muted">Enter a current authenticator code or one backup code.</p></div>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       {coolingDown ? <Alert kind="warning" role="status">Try again in {secondsRemaining} seconds.</Alert> : null}
       <form className="grid gap-4" onSubmit={(event) => void submit(event)}>

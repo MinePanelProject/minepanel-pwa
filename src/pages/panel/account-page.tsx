@@ -43,18 +43,19 @@ export const AccountPage = (): React.JSX.Element => {
 
   return (
     <section className="grid max-w-xl gap-6" aria-labelledby="account-heading">
-      <div>
-        <h1 className="pixel-title" id="account-heading">Account</h1>
-        <p className="mt-2 text-sm text-ink-muted">Profile details for this panel.</p>
-      </div>
-      <div className="grid gap-3">
-        <Link className="w-fit min-h-11 border-2 border-line-strong bg-surface-raised px-4 py-2 text-sm font-bold text-ink hover:border-ink-muted" to="security">Security &amp; sessions</Link>
-      </div>
+      <header className="account-header flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="pixel-label text-accent">[ Account ]</p>
+          <h1 className="page-title mt-2" id="account-heading">Account</h1>
+          <p className="mt-2 text-sm text-ink-muted">Profile details for this panel.</p>
+        </div>
+        <Link className="mp-button mp-button-secondary account-action inline-flex w-fit items-center px-4 py-2 no-underline" to="security">Security &amp; sessions</Link>
+      </header>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       {feedback ? <Alert kind="success" role="status">{feedback}</Alert> : null}
-      <dl className="grid gap-3 panel-surface p-5 text-sm">
-        <div className="grid gap-1"><dt className="font-bold text-ink-muted">Username</dt><dd className="text-ink">{state.profile.username}</dd></div>
-        <div className="grid gap-1"><dt className="font-bold text-ink-muted">Email</dt><dd className="text-ink-muted">This panel does not include email in its session profile.</dd></div>
+      <dl className="account-facts grid gap-3 panel-surface p-5 text-sm">
+        <div className="grid gap-1"><dt className="pixel-label text-ink-muted">Username</dt><dd className="text-ink">{state.profile.username}</dd></div>
+        <div className="grid gap-1"><dt className="pixel-label text-ink-muted">Email</dt><dd className="text-ink-muted">This panel does not include email in its session profile.</dd></div>
       </dl>
       <form className="grid gap-4 panel-surface p-5" onSubmit={(event) => void submit(event)}>
         <Field id="account-username" label="Username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required />

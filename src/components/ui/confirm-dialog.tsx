@@ -49,7 +49,7 @@ export const ConfirmDialog = ({
   return (
     <dialog
       ref={dialogRef}
-      className="panel-surface-raised m-auto w-[min(28rem,calc(100vw-2rem))] p-0 text-ink backdrop:bg-black/60"
+      className="panel-surface m-auto w-[min(28rem,calc(100vw-2rem))] p-0 text-ink backdrop:bg-black/75"
       aria-label={title}
       onCancel={(event) => {
         event.preventDefault();
@@ -58,7 +58,7 @@ export const ConfirmDialog = ({
       onClose={onCancel}
     >
       <div className="p-6">
-        <p className="pixel-title text-xs text-accent">[ Confirm ]</p>
+        <p className="pixel-label text-xs text-accent">[ Confirm ]</p>
         <h2 className="mt-3 text-xl font-bold">{title}</h2>
         <div className="mt-4 text-sm leading-6 text-ink-muted">{children}</div>
         <div className="mt-7 flex flex-wrap justify-end gap-3">

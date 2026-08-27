@@ -15,8 +15,8 @@ export default defineConfig({
         name: 'MinePanel',
         short_name: 'MinePanel',
         description: 'MinePanel hosted dashboard',
-        theme_color: '#10130f',
-        background_color: '#10130f',
+        theme_color: '#0d0d0d',
+        background_color: '#0d0d0d',
         display: 'standalone',
         start_url: '/',
         icons: [

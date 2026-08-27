@@ -149,8 +149,8 @@ export const AdminUsersPage = (): React.JSX.Element => {
   return (
     <div className="grid gap-6">
       <header>
-        <p className="pixel-title text-accent">[ Administration ]</p>
-        <h1 className="mt-3 text-2xl font-bold text-ink">Users</h1>
+        <p className="pixel-label text-accent">[ Administration ]</p>
+        <h1 className="page-title mt-3">Users</h1>
         <p className="mt-2 text-sm leading-6 text-ink-muted">Approve accounts, change access, and recover user access safely.</p>
       </header>
 
@@ -191,7 +191,7 @@ export const AdminUsersPage = (): React.JSX.Element => {
       {notice ? <Alert kind="success">{notice}</Alert> : null}
       {temporaryPassword ? (
         <section className="panel-surface border-danger p-5" aria-labelledby="temporary-password-heading">
-          <p className="pixel-title text-warning">[ One-time credential ]</p>
+          <p className="pixel-label text-warning">[ One-time credential ]</p>
           <h2 className="mt-3 text-xl font-bold text-ink" id="temporary-password-heading">
             Temporary password
           </h2>
@@ -299,7 +299,7 @@ const UserCard = ({ panelId, user, onAction }: { panelId: string; user: PublicUs
 );
 
 const UserActions = ({ user, onAction }: { user: PublicUser; onAction: (action: UserAction) => void }): React.JSX.Element => (
-  <div className="grid gap-3">
+  <div className="admin-actions grid gap-3">
     {user.status === 'PENDING' ? <Button onClick={() => onAction({ kind: 'status', user, status: 'ACTIVE' })}>Approve</Button> : null}
     <div className="grid gap-3 sm:grid-cols-2">
       <Field as="select" id={`status-${user.id}`} label={`Status for ${user.username}`} value={user.status} onChange={(event) => onAction({ kind: 'status', user, status: event.target.value as UserStatus })}>
@@ -318,10 +318,10 @@ const UserActions = ({ user, onAction }: { user: PublicUser; onAction: (action: 
 
 const StatusBadge = ({ status }: { status: UserStatus }): React.JSX.Element => {
   const dotClass = status === 'BANNED' ? 'status-dot status-dot--danger' : status === 'PENDING' ? 'status-dot status-dot--warning' : 'status-dot';
-  return <span className="inline-flex items-center gap-2 border border-line bg-bg px-2 py-1 text-xs font-bold text-ink"><span className={dotClass} aria-hidden="true" />{status}</span>;
+  return <span className="status-badge inline-flex items-center gap-2 border-2 border-line bg-bg px-2 py-1 text-xs font-bold text-ink"><span className={dotClass} aria-hidden="true" />{status}</span>;
 };
 
-const RoleBadge = ({ role }: { role: Role }): React.JSX.Element => <span className="inline-flex border border-line-strong bg-surface-raised px-2 py-1 text-xs font-bold text-ink">{role}</span>;
+const RoleBadge = ({ role }: { role: Role }): React.JSX.Element => <span className="role-badge inline-flex border-2 border-line-strong bg-surface-raised px-2 py-1 text-xs font-bold text-ink">{role}</span>;
 
 const actionTitle = (action: UserAction): string => {
   if (action.kind === 'status') return `Change ${action.user.username}'s status`;

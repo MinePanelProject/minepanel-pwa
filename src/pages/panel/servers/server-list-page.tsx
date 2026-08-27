@@ -23,7 +23,7 @@ const statusDotClass: Record<ServerStatus, string> = {
 };
 
 export const ServerStatusChip = ({ status }: { status: ServerStatus }): React.JSX.Element => (
-  <span className="inline-flex items-center gap-2 border border-line-strong bg-surface-raised px-2 py-1 font-mono text-xs font-bold text-ink">
+  <span className="status-chip inline-flex items-center gap-2 border-2 border-line-strong bg-surface-raised px-2 py-1 font-mono text-xs font-bold text-ink">
     <span className={`status-dot ${statusDotClass[status]}`} aria-hidden="true" />
     {status}
   </span>
@@ -44,7 +44,7 @@ const ServerCard = ({ server, detailPath }: { server: Server; detailPath: string
       <div><dt className="text-ink-faint">Access</dt><dd className="mt-1 font-bold text-ink">{server.accessType}</dd></div>
       <div><dt className="text-ink-faint">Players</dt><dd className="mt-1 font-bold text-ink">{server.maxPlayers}</dd></div>
     </dl>
-    <Link className="inline-flex min-h-11 items-center justify-center border-2 border-accent bg-accent-strong px-4 py-2 text-sm font-bold text-accent-ink" to={detailPath}>
+    <Link className="mp-button mp-button-primary inline-flex items-center px-4 py-2 no-underline" to={detailPath}>
       View server
     </Link>
   </li>
@@ -83,10 +83,10 @@ export const ServerListPage = (): React.JSX.Element => {
     <section aria-labelledby="servers-heading" className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="pixel-title text-xs text-accent">[ Server management ]</p>
-          <h1 className="mt-3 text-3xl font-bold text-ink" id="servers-heading">Servers</h1>
+          <p className="pixel-label text-xs text-accent">[ Server management ]</p>
+          <h1 className="page-title mt-3" id="servers-heading">Servers</h1>
         </div>
-        {canCreate ? <Link className="inline-flex min-h-11 items-center justify-center border-2 border-accent bg-accent-strong px-4 py-2 font-bold text-accent-ink" to={`${basePath}/new`}>Create server</Link> : null}
+        {canCreate ? <Link className="mp-button mp-button-primary inline-flex items-center px-4 py-2 no-underline" to={`${basePath}/new`}>Create server</Link> : null}
       </div>
 
       {query.isLoading ? <div className="flex items-center gap-3 text-ink-muted"><Spinner /> Loading servers…</div> : null}
@@ -95,7 +95,7 @@ export const ServerListPage = (): React.JSX.Element => {
         <EmptyState
           title="No servers available"
           description={canCreate ? 'Create the first server for this panel.' : 'You do not currently have access to any servers.'}
-          action={canCreate ? <Link className="inline-flex min-h-11 items-center justify-center border-2 border-accent bg-accent-strong px-4 py-2 font-bold text-accent-ink" to={`${basePath}/new`}>Create server</Link> : undefined}
+          action={canCreate ? <Link className="mp-button mp-button-primary inline-flex items-center px-4 py-2 no-underline" to={`${basePath}/new`}>Create server</Link> : undefined}
         />
       ) : null}
       {query.data && query.data.data.length > 0 ? (
@@ -107,7 +107,7 @@ export const ServerListPage = (): React.JSX.Element => {
           {query.data.total > PAGE_SIZE ? <div className="flex flex-wrap items-center gap-3"><Button variant="secondary" disabled={offset === 0 || query.isFetching} onClick={() => setOffset((current) => Math.max(0, current - PAGE_SIZE))}>Previous page</Button><span className="text-sm text-ink-muted" aria-live="polite">Showing {offset + 1}–{Math.min(offset + query.data.data.length, query.data.total)} of {query.data.total}</span><Button variant="secondary" disabled={offset + PAGE_SIZE >= query.data.total || query.isFetching} onClick={() => setOffset((current) => current + PAGE_SIZE)}>Next page</Button></div> : null}
         </>
       ) : null}
-      <Button variant="secondary" onClick={() => void query.refetch()} disabled={query.isFetching}>Refresh servers</Button>
+      <Button className="w-fit" variant="secondary" onClick={() => void query.refetch()} disabled={query.isFetching}>Refresh servers</Button>
 
       <RequestableServersSection />
     </section>

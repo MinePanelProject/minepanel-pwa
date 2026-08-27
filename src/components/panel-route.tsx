@@ -46,7 +46,7 @@ export const PanelRoute = (): React.JSX.Element => {
     return (
       <main className="p-4 sm:p-8">
         <section className="panel-surface mx-auto max-w-xl p-7">
-          <h1 className="text-xl font-bold text-ink">Panel not found</h1>
+          <h1 className="page-title text-xl font-bold text-ink">Panel not found</h1>
           <p className="mt-3 leading-7 text-ink-muted">
             This saved panel is no longer available on this device.
           </p>

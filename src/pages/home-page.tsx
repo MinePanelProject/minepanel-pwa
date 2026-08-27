@@ -23,10 +23,10 @@ export const HomePage = (): React.JSX.Element => {
   };
 
   return (
-    <section className="grid gap-8 lg:grid-cols-[1.1fr_1.9fr]">
+    <section className="grid gap-8 lg:grid-cols-[1.25fr_1.75fr]">
       <div className="panel-surface self-start p-6 sm:p-8">
-        <p className="pixel-title text-xs text-accent">[ Direct connection ]</p>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+        <p className="pixel-label text-accent">[ Direct connection ]</p>
+        <h1 className="registry-headline page-title mt-4 text-3xl font-bold tracking-tight text-ink">
           Your panels. Your infrastructure.
         </h1>
         <p className="mt-4 leading-7 text-ink-muted">
@@ -34,7 +34,7 @@ export const HomePage = (): React.JSX.Element => {
           stays on this device; this hosted app does not relay panel traffic.
         </p>
         <Link
-          className="mt-7 inline-flex border-2 border-accent bg-accent-strong px-4 py-3 font-bold text-accent-ink no-underline transition hover:bg-accent"
+          className="mp-button mp-button-primary mt-7 inline-flex px-4 py-3 no-underline"
           to="/add"
         >
           Add a MinePanel backend
@@ -44,8 +44,8 @@ export const HomePage = (): React.JSX.Element => {
       <div>
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <p className="pixel-title text-xs text-accent">[ Saved panels ]</p>
-            <h2 className="mt-2 text-xl font-bold text-ink">Choose a backend</h2>
+            <p className="pixel-label text-accent">[ Saved panels ]</p>
+            <h2 className="section-title mt-2 text-xl font-bold text-ink">Choose a backend</h2>
           </div>
           {!isLoading && <span className="text-sm text-ink-muted">{instances.length} saved</span>}
         </div>
@@ -61,29 +61,30 @@ export const HomePage = (): React.JSX.Element => {
           </div>
         ) : (
           <ul className="grid gap-3" aria-label="Saved MinePanel backends">
-            {instances.map((instance) => (
+            {instances.map((instance) => {
+              const label = instance.label?.trim();
+              return (
               <li className="panel-surface flex flex-col gap-4 p-5 sm:flex-row sm:items-center" key={instance.id}>
                 <button
-                  className="min-w-0 flex-1 cursor-pointer bg-transparent text-left"
+                  className="panel-row-action min-w-0 flex-1 cursor-pointer bg-transparent text-left"
                   type="button"
                   onClick={() => void openInstance(instance.id)}
                 >
-                  <span className="block truncate font-bold text-ink">
-                    {instance.label || instance.origin}
+                  <span className={`saved-panel-title block break-words ${label ? 'font-bold text-ink' : 'font-mono text-ink-muted'}`}>
+                    {label || instance.origin}
                   </span>
-                  <span className="mt-1 block truncate font-mono text-sm text-ink-muted">
-                    {instance.origin}
-                  </span>
+                  {label ? <span className="mt-1 block break-all font-mono text-sm text-ink-muted">{instance.origin}</span> : null}
                 </button>
                 <button
-                  className="cursor-pointer self-start border border-line-strong px-3 py-2 text-sm text-ink-muted hover:border-danger hover:text-danger"
+                  className="mp-button panel-remove-button cursor-pointer self-start border border-danger bg-transparent px-3 py-2 text-danger hover:bg-danger-dim"
                   type="button"
                   onClick={() => void removeInstance(instance.id)}
                 >
                   Remove
                 </button>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </div>

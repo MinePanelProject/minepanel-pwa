@@ -20,7 +20,7 @@ type SelectFieldProps = FieldBase &
   };
 
 const sharedFieldClasses =
-  'w-full border-2 border-line-strong bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none aria-invalid:border-danger';
+  'mp-field w-full border-2 border-line-strong bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none aria-invalid:border-danger';
 
 /**
  * Labeled form control. `error` renders an accessible inline message and

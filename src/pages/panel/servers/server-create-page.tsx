@@ -94,8 +94,8 @@ export const ServerCreatePage = (): React.JSX.Element => {
     <section aria-labelledby="create-server-heading" className="max-w-3xl">
       <Link className="text-sm font-bold text-accent" to={serverListPath}>← All servers</Link>
       <div className="panel-surface mt-5 p-5 sm:p-7">
-        <p className="pixel-title text-xs text-accent">[ Administrator ]</p>
-        <h1 className="mt-3 text-3xl font-bold text-ink" id="create-server-heading">Create server</h1>
+        <p className="pixel-label text-xs text-accent">[ Administrator ]</p>
+        <h1 className="page-title mt-3" id="create-server-heading">Create server</h1>
         <p className="mt-3 text-sm leading-6 text-ink-muted">The panel remains authoritative for every server constraint and resource check.</p>
         <form className="mt-7 grid gap-5 sm:grid-cols-2" onSubmit={submit}>
           <Field id="name" label="Server name" name="name" required minLength={1} maxLength={50} hint="1–50 characters." />

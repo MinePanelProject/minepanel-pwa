@@ -38,7 +38,7 @@ export const SystemMetricsPanel = (): React.JSX.Element | null => {
     <section className="panel-surface grid gap-5 p-5" aria-labelledby="system-metrics-heading">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="pixel-title text-accent">[ System telemetry ]</p>
+          <p className="pixel-label text-accent">[ System telemetry ]</p>
           <h2 className="mt-2 text-xl font-bold text-ink" id="system-metrics-heading">
             Host metrics
           </h2>
@@ -86,7 +86,7 @@ export const SystemMetricsPanel = (): React.JSX.Element | null => {
 
 const Metric = ({ label, value }: { label: string; value: string }): React.JSX.Element => (
   <div className="border border-line bg-bg p-3">
-    <dt className="pixel-title text-ink-muted">{label}</dt>
+    <dt className="pixel-label text-ink-muted">{label}</dt>
     <dd className="mt-2 text-lg font-bold text-ink">{value}</dd>
   </div>
 );

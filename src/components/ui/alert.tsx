@@ -27,7 +27,7 @@ export const Alert = ({ kind = 'info', role, title, children }: AlertProps): Rea
 
   return (
     <div className={`border-l-4 px-4 py-3 text-sm leading-6 ${classes.box} ${classes.border}`} role={effectiveRole}>
-      {title && <p className="font-bold text-ink">{title}</p>}
+      {title && <p className="pixel-label mb-1 text-ink">{title}</p>}
       {children}
     </div>
   );

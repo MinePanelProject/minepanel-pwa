@@ -133,7 +133,7 @@ export const ServerDetailPage = (): React.JSX.Element => {
       <Link className="text-sm font-bold text-accent" to={`/panel/${instanceId ?? panel.id}/servers`}>← All servers</Link>
       <div className="panel-surface p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0"><p className="pixel-title text-xs text-accent">[ Server ]</p><h1 className="mt-3 break-words text-3xl font-bold text-ink" id="server-heading">{server.name}</h1></div>
+          <div className="min-w-0"><p className="pixel-label text-xs text-accent">[ Server ]</p><h1 className="page-title mt-3 break-words text-3xl font-bold text-ink" id="server-heading">{server.name}</h1></div>
           <ServerStatusChip status={server.status} />
         </div>
         <dl className="mt-7 grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -257,8 +257,8 @@ export const AdminUserDetailPage = (): React.JSX.Element => {
     <div className="grid gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="pixel-title text-accent">[ Administration ]</p>
-          <h1 className="mt-3 text-2xl font-bold text-ink">{user.username}</h1>
+          <p className="pixel-label text-accent">[ Administration ]</p>
+          <h1 className="page-title mt-3 text-2xl font-bold text-ink">{user.username}</h1>
           <p className="mt-2 break-all text-sm text-ink-muted">{user.email}</p>
         </div>
         <Link className="text-sm font-bold text-accent hover:text-ink" to={`/panel/${panel?.id ?? ''}/admin/users`}>Back to users</Link>
@@ -268,7 +268,7 @@ export const AdminUserDetailPage = (): React.JSX.Element => {
       {actionNotice ? <Alert kind="success">{actionNotice}</Alert> : null}
       {temporaryPassword ? (
         <section className="panel-surface border-danger p-5" aria-labelledby="detail-temporary-password-heading">
-          <p className="pixel-title text-warning">[ One-time credential ]</p>
+          <p className="pixel-label text-warning">[ One-time credential ]</p>
           <h2 className="mt-3 text-xl font-bold text-ink" id="detail-temporary-password-heading">Temporary password</h2>
           <p className="mt-2 text-sm leading-6 text-ink-muted">Use within 24 hours. It forces a password change and revokes all sessions.</p>
           <output className="mt-4 block break-all border border-line bg-bg p-4 font-mono text-base text-ink" aria-live="polite">{temporaryPassword}</output>
@@ -282,7 +282,7 @@ export const AdminUserDetailPage = (): React.JSX.Element => {
 
       <section className="panel-surface grid gap-5 p-5" aria-labelledby="user-access-heading">
         <div>
-          <p className="pixel-title text-accent">[ Account access ]</p>
+          <p className="pixel-label text-accent">[ Account access ]</p>
           <h2 className="mt-2 text-xl font-bold text-ink" id="user-access-heading">Role and status</h2>
         </div>
         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -308,7 +308,7 @@ export const AdminUserDetailPage = (): React.JSX.Element => {
 
       <section className="panel-surface grid gap-5 p-5" aria-labelledby="mod-permissions-heading">
         <div>
-          <p className="pixel-title text-accent">[ MOD permissions ]</p>
+          <p className="pixel-label text-accent">[ MOD permissions ]</p>
           <h2 className="mt-2 text-xl font-bold text-ink" id="mod-permissions-heading">Permission grants</h2>
           <p className="mt-2 text-sm leading-6 text-ink-muted">Global grants apply to every visible server. A server ID scopes a grant to one server.</p>
         </div>
@@ -361,7 +361,7 @@ export const AdminUserDetailPage = (): React.JSX.Element => {
 };
 
 const DetailFact = ({ label, value }: { label: string; value: string }): React.JSX.Element => (
-  <div className="border border-line bg-bg p-3"><dt className="pixel-title text-ink-muted">{label}</dt><dd className="mt-2 font-bold text-ink">{value}</dd></div>
+  <div className="border border-line bg-bg p-3"><dt className="pixel-label text-ink-muted">{label}</dt><dd className="mt-2 font-bold text-ink">{value}</dd></div>
 );
 
 const userActionTitle = (action: UserAction, user: PublicUser): string => {

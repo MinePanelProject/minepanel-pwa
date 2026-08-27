@@ -92,7 +92,7 @@ export const RequestableServersSection = (): React.JSX.Element | null => {
   return (
     <section className="panel-surface grid gap-4 p-5" aria-labelledby="discover-heading">
       <div>
-        <p className="pixel-title text-xs text-accent">[ Discover servers ]</p>
+        <p className="pixel-label text-xs text-accent">[ Discover servers ]</p>
         <h2 className="mt-2 text-xl font-bold text-ink" id="discover-heading">Requestable servers</h2>
         <p className="mt-2 text-sm leading-6 text-ink-muted">
           Servers that require administrator approval before you can use them.

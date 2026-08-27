@@ -181,7 +181,7 @@ export const SecurityPage = (): React.JSX.Element => {
 
   return (
     <section className="grid gap-8" aria-labelledby="security-heading">
-      <div><h1 className="pixel-title" id="security-heading">Security</h1><p className="mt-2 text-sm text-ink-muted">Manage passwords, two-factor authentication, and browser sessions.</p></div>
+      <div><p className="pixel-label text-accent">[ Security ]</p><h1 className="page-title mt-2" id="security-heading">Security</h1><p className="mt-2 text-sm text-ink-muted">Manage passwords, two-factor authentication, and browser sessions.</p></div>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       {feedback ? <Alert kind="success" role="status">{feedback}</Alert> : null}
       <form className="grid gap-4 panel-surface p-5" onSubmit={(event) => void changePassword(event)}><h2 className="text-lg font-bold">Change password</h2><Field id="security-old-password" label="Current password" type="password" autoComplete="current-password" value={oldPassword} onChange={(event) => setOldPassword(event.target.value)} required /><Field id="security-new-password" label="New password" type="password" autoComplete="new-password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required /><Field id="security-password-confirmation" label="Confirm new password" type="password" autoComplete="new-password" value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} required /><Button type="submit" loading={passwordBusy}>Change password</Button></form>
