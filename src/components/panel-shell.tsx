@@ -52,7 +52,9 @@ const CompatibilityScreen = ({
     ? 'MinePanel hosted authentication requires a secure HTTPS browser context.'
     : problem.subject === 'browser'
       ? 'This browser does not provide the cross-tab locking MinePanel uses to keep session refreshes safe.'
-      : 'This saved panel does not advertise the protocol and hosted-auth capabilities required by the dashboard. Update the MinePanel backend or verify its deployment.';
+      : problem.reason === 'unsupported-protocol'
+        ? 'This panel reports a MinePanel protocol version that this dashboard does not support. Update the panel to a compatible backend version.'
+        : 'This panel does not advertise the partitioned-cookie hosted authentication capability required by the hosted dashboard. Update or verify the backend deployment.';
 
   return (
     <main className="p-4 sm:p-8">

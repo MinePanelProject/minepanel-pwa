@@ -65,13 +65,25 @@ describe('PanelShell compatibility guidance', () => {
     expect(container?.querySelector('h1')?.textContent).toBe('MinePanel compatibility');
   });
 
-  it('uses panel wording for backend incompatibility', async () => {
+  it('uses protocol-specific wording for backend incompatibility', async () => {
     actEnvironment.IS_REACT_ACT_ENVIRONMENT = true;
     await mount({ kind: 'error', problem: { kind: 'incompatible', subject: 'panel', reason: 'unsupported-protocol' } });
 
     expect(container?.querySelector('h1')?.textContent).toBe('Panel not compatible');
-    expect(container?.textContent).toContain('Update the MinePanel backend');
+    expect(container?.textContent).toContain('protocol version');
+    expect(container?.textContent).toContain('compatible backend version');
+    expect(container?.textContent).not.toContain('partitioned-cookie');
     expect(container?.textContent).not.toContain('Browser not supported');
+  });
+
+  it('uses partitioned-auth-specific wording for backend incompatibility', async () => {
+    actEnvironment.IS_REACT_ACT_ENVIRONMENT = true;
+    await mount({ kind: 'error', problem: { kind: 'incompatible', subject: 'panel', reason: 'partitioned-auth-not-advertised' } });
+
+    expect(container?.querySelector('h1')?.textContent).toBe('Panel not compatible');
+    expect(container?.textContent).toContain('partitioned-cookie hosted authentication capability');
+    expect(container?.textContent).toContain('Update or verify the backend deployment');
+    expect(container?.textContent).not.toContain('protocol version');
   });
 });
 

@@ -148,16 +148,20 @@
 					"done": false
 				}
 			]
-		}
-	],
-	"futureWork": [
-		{
-			"text": "Optional GitHub OAuth identity integration",
-			"status": "optional"
 		},
 		{
-			"text": "Conditional PKCE compatibility fallback if supported-browser requirements expand; not required for the current policy and not implemented",
-			"status": "future"
+			"id": "future-identity-authentication",
+			"label": "Future Identity / Authentication",
+			"name": "Optional Follow-ons",
+			"status": "future",
+			"progress": 0,
+			"progressLabel": null,
+			"items": [
+				{
+					"text": "[Optional] GitHub OAuth identity integration",
+					"done": false
+				}
+			]
 		}
 	],
 	"scope": "scope: MinePanel hosted dashboard (minepanel-pwa). This file is the PWA roadmap; it does not redefine the global backend project roadmap."
