@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, matchPath, NavLink, Outlet, useLocation } from 'react-router';
 import { getProbeErrorMessage } from '@/api/errors';
-import { usePanelSession } from '@/auth/panel-session-context';
+import { usePanelSession, type SessionProblem } from '@/auth/panel-session-context';
 import { PasswordChangePage } from '@/pages/panel/password-change-page';
 import { SignInPage } from '@/pages/panel/sign-in-page';
 import { TwoFactorPage } from '@/pages/panel/two-factor-page';
@@ -34,8 +34,42 @@ const NavItem = ({ to, onNavigate, children }: { to: string; onNavigate?: () => 
 );
 
 const BlockedScreen = ({ title, children, onReturn }: { title: string; children: ReactNode; onReturn: () => void }): React.JSX.Element => (
-  <section className="mx-auto grid w-full max-w-md gap-5 panel-surface p-6"><h1 className="page-title">{title}</h1><div className="text-sm leading-6 text-ink-muted">{children}</div><Button onClick={onReturn}>Return to sign in</Button></section>
+  <section className="mx-auto grid w-full max-w-md gap-5 panel-surface p-6" aria-labelledby="blocked-screen-title">
+    <h1 id="blocked-screen-title" className="page-title">{title}</h1>
+    <div className="text-sm leading-6 text-ink-muted">{children}</div>
+    <Button onClick={onReturn}>Return to sign in</Button>
+  </section>
 );
+
+const CompatibilityScreen = ({
+  problem,
+  onRetry,
+}: {
+  problem: Extract<SessionProblem, { kind: 'incompatible' }>;
+  onRetry: () => void;
+}): React.JSX.Element => {
+  const copy = problem.subject === 'browser' && problem.reason === 'insecure-context'
+    ? 'MinePanel hosted authentication requires a secure HTTPS browser context.'
+    : problem.subject === 'browser'
+      ? 'This browser does not provide the cross-tab locking MinePanel uses to keep session refreshes safe.'
+      : problem.reason === 'unsupported-protocol'
+        ? 'This panel reports a MinePanel protocol version that this dashboard does not support. Update the panel to a compatible backend version.'
+        : 'This panel does not advertise the partitioned-cookie hosted authentication capability required by the hosted dashboard. Update or verify the backend deployment.';
+
+  return (
+    <main className="p-4 sm:p-8">
+      <section className="mx-auto grid w-full max-w-md gap-5 panel-surface p-6" aria-labelledby="compatibility-screen-title">
+        <h1 id="compatibility-screen-title" className="page-title">{problem.subject === 'browser' ? 'Browser not supported' : 'Panel not compatible'}</h1>
+        <Alert kind="warning">{copy}</Alert>
+        <div className="flex flex-wrap gap-3">
+          <Link className="mp-button mp-button-secondary inline-flex items-center px-4 py-2 no-underline" to="/compatibility">Learn more</Link>
+          <Button variant="secondary" onClick={onRetry}>Retry</Button>
+          <Link className="mp-button mp-button-secondary inline-flex items-center px-4 py-2 no-underline" to="/">Back to panels</Link>
+        </div>
+      </section>
+    </main>
+  );
+};
 
 export const PanelShell = ({ children, panelLabel }: PanelShellProps): React.JSX.Element => {
   const { panel, state, signOut, retryRestore, infoError } = usePanelSession();
@@ -58,9 +92,18 @@ export const PanelShell = ({ children, panelLabel }: PanelShellProps): React.JSX
   if (state.kind === 'account-pending') return <main className="p-4 sm:p-8"><BlockedScreen title="Approval required" onReturn={() => void signOut()}>Your account is awaiting administrator approval. Return to sign in after an administrator approves it.</BlockedScreen></main>;
   if (state.kind === 'account-banned') return <main className="p-4 sm:p-8"><BlockedScreen title="Account unavailable" onReturn={() => void signOut()}>This account cannot access the panel. Contact the panel administrator if you need help.</BlockedScreen></main>;
   if (state.kind === 'error') {
-    const incompatible = state.reason === 'incompatible';
-    const expired = state.reason === 'expired';
-    return <main className="p-4 sm:p-8"><section className="mx-auto grid w-full max-w-md gap-5 panel-surface p-6"><h1 className="page-title">{incompatible ? 'Panel compatibility issue' : expired ? 'Session expired' : 'Panel unavailable'}</h1><Alert kind={incompatible ? 'warning' : 'error'}>{incompatible ? 'This panel or browser cannot safely use MinePanel hosted-cookie authentication. Check protocol, CHIPS, Web Locks, and exact panel origin configuration.' : expired ? 'Your browser session is no longer valid. Sign in again.' : getProbeErrorMessage(infoError)}</Alert><Button onClick={retryRestore}>{expired ? 'Try sign in again' : 'Retry connection'}</Button></section></main>;
+    if (state.problem.kind === 'incompatible') {
+      return <CompatibilityScreen problem={state.problem} onRetry={retryRestore} />;
+    }
+    const expired = state.problem.kind === 'expired';
+    const message = state.problem.kind === 'offline'
+      ? getProbeErrorMessage(infoError)
+      : expired
+        ? 'Your browser session is no longer valid. Sign in again.'
+        : state.problem.kind === 'hosted-origin-forbidden'
+          ? 'This panel rejected the hosted dashboard origin. Verify its public HTTPS and CORS configuration.'
+          : 'This saved panel did not return a compatible MinePanel response.';
+    return <main className="p-4 sm:p-8"><section className="mx-auto grid w-full max-w-md gap-5 panel-surface p-6"><h1 className="page-title">{expired ? 'Session expired' : 'Panel unavailable'}</h1><Alert kind="error">{message}</Alert><Button onClick={retryRestore}>{expired ? 'Try sign in again' : 'Retry connection'}</Button></section></main>;
   }
 
   const admin = state.profile.role === 'ADMIN';

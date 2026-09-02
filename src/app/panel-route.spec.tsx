@@ -29,6 +29,7 @@ let root: Root | null = null;
 let container: HTMLDivElement | null = null;
 
 beforeEach(async () => {
+  Object.defineProperty(globalThis, 'isSecureContext', { configurable: true, value: true });
   Object.defineProperty(navigator, 'locks', {
     configurable: true,
     value: {
@@ -57,6 +58,7 @@ afterEach(async () => {
   await db.clear('instances');
   db.close();
   vi.unstubAllGlobals();
+  Object.defineProperty(globalThis, 'isSecureContext', { configurable: true, value: undefined });
   Object.defineProperty(navigator, 'locks', { configurable: true, value: undefined });
 });
 
@@ -376,5 +378,13 @@ describe('panel hard remount (Finding 2 regression)', () => {
     });
     expect(container?.textContent).not.toContain('AdminA');
     expect(await waitForText('UserB')).toBe(true);
+  });
+});
+
+describe('public compatibility route', () => {
+  it('renders without a saved or connected panel', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    await mountApplicationRouter(queryClient, '/compatibility');
+    expect(await waitForText('MinePanel compatibility')).toBe(true);
   });
 });

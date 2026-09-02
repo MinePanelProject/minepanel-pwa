@@ -2,7 +2,12 @@ import type { BackendClient, PanelInfo } from '@/api/backend-client';
 import { BackendApiError, BackendClientError } from '@/api/errors';
 import type { AuthProfile, LoginInput, PublicUser, RegisterInput } from '@/api/types';
 import { hasRefreshLockSupport, refreshWithBroker } from './refresh-broker';
-import type { ShellSession } from './panel-session-context';
+import type {
+  BrowserIncompatibilityReason,
+  PanelIncompatibilityReason,
+  SessionProblem,
+  ShellSession,
+} from './panel-session-context';
 
 export type SessionControllerOptions = {
   client: BackendClient;
@@ -30,8 +35,22 @@ const profileForShell = (profile: AuthProfile): Extract<ShellSession, { kind: 'a
   },
 });
 
-const isCapabilityCompatible = (info: PanelInfo): boolean =>
-  info.api.protocolVersion === 1 && info.capabilities.auth.partitionedCookies;
+const browserIncompatibility = (): BrowserIncompatibilityReason | null => {
+  if (globalThis.isSecureContext !== true) return 'insecure-context';
+  if (!hasRefreshLockSupport()) return 'web-locks-unavailable';
+  return null;
+};
+
+const panelIncompatibility = (info: PanelInfo): PanelIncompatibilityReason | null => {
+  if (info.api.protocolVersion !== 1) return 'unsupported-protocol';
+  if (!info.capabilities.auth.partitionedCookies) return 'partitioned-auth-not-advertised';
+  return null;
+};
+
+const incompatibleProblem = (reason: BrowserIncompatibilityReason | PanelIncompatibilityReason): SessionProblem =>
+  reason === 'insecure-context' || reason === 'web-locks-unavailable'
+    ? { kind: 'incompatible', subject: 'browser', reason }
+    : { kind: 'incompatible', subject: 'panel', reason };
 
 const isApiCode = (error: unknown, code: string): boolean =>
   error instanceof BackendApiError && error.code === code;
@@ -81,7 +100,7 @@ export class SessionController {
       this.invalidateOperations();
       this.hadAuthenticatedSession = false;
       this.options.onBoundary();
-      this.setState({ kind: 'error', reason: 'expired' });
+      this.setState({ kind: 'error', problem: { kind: 'expired' } });
     }
   }
 
@@ -102,6 +121,7 @@ export class SessionController {
 
   async start(): Promise<void> {
     this.disposed = false;
+    const wasAuthenticated = this.state.kind === 'authenticated';
     const operation = ++this.operation;
     this.setState({ kind: 'loading' });
     try {
@@ -109,8 +129,13 @@ export class SessionController {
       if (!this.isCurrent(operation)) return;
       this.info = info;
       this.options.onInfo(info, null);
-      if (!isCapabilityCompatible(info) || !hasRefreshLockSupport()) {
-        this.setState({ kind: 'error', reason: 'incompatible' });
+      const issue = browserIncompatibility() ?? panelIncompatibility(info);
+      if (issue !== null) {
+        if (wasAuthenticated) {
+          this.hadAuthenticatedSession = false;
+          this.options.onBoundary();
+        }
+        this.setState({ kind: 'error', problem: incompatibleProblem(issue) });
         return;
       }
       await this.restore(operation);
@@ -118,7 +143,10 @@ export class SessionController {
       if (!this.isCurrent(operation)) return;
       this.info = null;
       this.options.onInfo(null, error);
-      this.setState({ kind: 'error', reason: isUnavailable(error) ? 'offline' : 'incompatible' });
+      this.setState({
+        kind: 'error',
+        problem: isUnavailable(error) ? { kind: 'offline' } : { kind: 'session-restore-failed' },
+      });
     }
   }
 
@@ -255,7 +283,7 @@ export class SessionController {
       const wasAuthenticated = this.hadAuthenticatedSession;
       this.hadAuthenticatedSession = false;
       this.options.onBoundary();
-      this.setState(wasAuthenticated ? { kind: 'error', reason: 'expired' } : { kind: 'anonymous' });
+      this.setState(wasAuthenticated ? { kind: 'error', problem: { kind: 'expired' } } : { kind: 'anonymous' });
       return;
     }
     this.mapTerminalError(error, true);
@@ -281,26 +309,33 @@ export class SessionController {
       this.setState({ kind: 'account-banned' });
       return;
     }
-    if (isApiCode(error, 'CsrfOriginForbidden') || error instanceof BackendClientError && error.kind === 'invalid-response') {
+    if (isApiCode(error, 'CsrfOriginForbidden')) {
       this.invalidateOperations();
       this.options.onBoundary();
-      this.setState({ kind: 'error', reason: 'incompatible' });
+      this.setState({ kind: 'error', problem: { kind: 'hosted-origin-forbidden' } });
+      return;
+    }
+    if (error instanceof BackendClientError && error.kind === 'invalid-response') {
+      this.invalidateOperations();
+      this.options.onBoundary();
+      this.setState({ kind: 'error', problem: { kind: 'session-restore-failed' } });
       return;
     }
     if (restoring && (isUnavailable(error) || error instanceof BackendApiError && error.status >= 500)) {
-      this.setState({ kind: 'error', reason: 'offline' });
+      this.setState({ kind: 'error', problem: { kind: 'offline' } });
       return;
     }
     if (restoring) {
       this.invalidateOperations();
       this.options.onBoundary();
-      this.setState({ kind: 'error', reason: 'incompatible' });
+      this.setState({ kind: 'error', problem: { kind: 'session-restore-failed' } });
     }
   }
 
   private ensureCompatible(): void {
-    if (this.info === null || !isCapabilityCompatible(this.info) || !hasRefreshLockSupport()) {
-      this.setState({ kind: 'error', reason: 'incompatible' });
+    const issue = this.info === null ? null : browserIncompatibility() ?? panelIncompatibility(this.info);
+    if (issue !== null) {
+      this.setState({ kind: 'error', problem: incompatibleProblem(issue) });
       throw new Error('This panel cannot safely use hosted cookie authentication in this browser.');
     }
   }
