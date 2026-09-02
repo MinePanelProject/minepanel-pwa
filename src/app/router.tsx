@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import { AppFrame } from '@/components/app-frame';
 import { PanelRoute } from '@/components/panel-route';
 import { AddPanelPage } from '@/pages/add-panel-page';
+import { CompatibilityPage } from '@/pages/compatibility-page';
 import { HomePage } from '@/pages/home-page';
 import { AccountPage } from '@/pages/panel/account-page';
 import { AdminUserDetailPage } from '@/pages/panel/admin/user-detail-page';
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
     Component: AppFrame,
     children: [
       { index: true, Component: HomePage },
+      { path: 'compatibility', Component: CompatibilityPage },
       { path: 'add', Component: AddPanelPage },
     ],
   },

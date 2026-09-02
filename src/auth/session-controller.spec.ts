@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { BackendClient } from '@/api/backend-client';
 import type { AuthProfile, PanelInfo } from '@/api/types';
-import { BackendApiError } from '@/api/errors';
+import { BackendApiError, BackendClientError } from '@/api/errors';
 import type { ShellSession } from './panel-session-context';
 import { resetRefreshBrokerForTests } from './refresh-broker';
 import { SessionController } from './session-controller';
@@ -10,11 +10,12 @@ const info: PanelInfo = { name: 'MinePanel', version: '1', api: { protocolVersio
 const profile: AuthProfile = { id: 'user-a', username: 'alex', role: 'USER' };
 
 const installLocks = (): void => {
+  Object.defineProperty(globalThis, 'isSecureContext', { configurable: true, value: true });
   Object.defineProperty(navigator, 'locks', { configurable: true, value: { request: async <T>(_name: string, _options: { mode: 'exclusive' }, callback: () => Promise<T>) => callback() } });
 };
-
 afterEach(() => {
   resetRefreshBrokerForTests();
+  Object.defineProperty(globalThis, 'isSecureContext', { configurable: true, value: undefined });
   Object.defineProperty(navigator, 'locks', { configurable: true, value: undefined });
 });
 
@@ -68,11 +69,61 @@ describe('SessionController', () => {
   });
 
   it('requires a compatible browser lock before hosted-cookie authentication', async () => {
+    Object.defineProperty(globalThis, 'isSecureContext', { configurable: true, value: true });
     const client = { origin: 'https://panel.example', getInfo: vi.fn().mockResolvedValue(info), getProfile: vi.fn() };
     const { controller, states } = controllerFor(client);
     await controller.start();
     expect(client.getProfile).not.toHaveBeenCalled();
-    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'incompatible' });
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'incompatible', subject: 'browser', reason: 'web-locks-unavailable' } });
+  });
+
+  it('blocks an insecure hosted context before restoring a session', async () => {
+    installLocks();
+    Object.defineProperty(globalThis, 'isSecureContext', { configurable: true, value: false });
+    const client = { origin: 'https://panel.example', getInfo: vi.fn().mockResolvedValue(info), getProfile: vi.fn() };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(client.getProfile).not.toHaveBeenCalled();
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'incompatible', subject: 'browser', reason: 'insecure-context' } });
+  });
+
+  it('distinguishes unsupported panel protocol and hosted-auth advertisement', async () => {
+    installLocks();
+    const protocolInfo = { ...info, api: { protocolVersion: 2 } };
+    const client = { origin: 'https://panel.example', getInfo: vi.fn().mockResolvedValue(protocolInfo), getProfile: vi.fn() };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'incompatible', subject: 'panel', reason: 'unsupported-protocol' } });
+
+    client.getInfo.mockResolvedValue({ ...info, capabilities: { ...info.capabilities, auth: { ...info.capabilities.auth, partitionedCookies: false } } });
+    await controller.start();
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'incompatible', subject: 'panel', reason: 'partitioned-auth-not-advertised' } });
+    expect(client.getProfile).not.toHaveBeenCalled();
+  });
+
+  it('keeps unavailable panels separate from compatibility failures', async () => {
+    installLocks();
+    const client = { origin: 'https://panel.example', getInfo: vi.fn().mockRejectedValue(new BackendClientError('unavailable', 'offline')), getProfile: vi.fn() };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'offline' } });
+  });
+  it('retries with fresh panel compatibility information', async () => {
+    installLocks();
+    const client = {
+      origin: 'https://panel.example',
+      getInfo: vi.fn()
+        .mockResolvedValueOnce({ ...info, api: { protocolVersion: 2 } })
+        .mockResolvedValueOnce(info),
+      getProfile: vi.fn().mockResolvedValue(profile),
+    };
+    const { controller, states } = controllerFor(client);
+    await controller.start();
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'incompatible', subject: 'panel', reason: 'unsupported-protocol' } });
+    controller.retryRestore();
+    await flush();
+    expect(client.getInfo).toHaveBeenCalledTimes(2);
+    expect(states.at(-1)).toEqual({ kind: 'authenticated', profile: { id: 'user-a', username: 'alex', role: 'USER' } });
   });
 });
 
@@ -168,7 +219,7 @@ describe('expired-session retry (BLOCKER-3 regression)', () => {
 
     controller.retryRestore();
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
-    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'expired' });
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'expired' } });
 
     // The retry action must now resolve to anonymous instead of looping.
     controller.retryRestore();
@@ -193,7 +244,7 @@ describe('terminal refresh boundary (Finding 1 regression)', () => {
     // Simulate the client coordinator discovering a terminally invalid
     // refresh session on an arbitrary authenticated endpoint.
     controller.handleTerminalRefresh();
-    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'expired' });
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'expired' } });
     expect(onBoundary).toHaveBeenCalledOnce();
 
     // Idempotent: repeated terminal notifications must not re-run boundary.
@@ -230,12 +281,12 @@ describe('session authority race (MP-BASELINE-SESSION-001)', () => {
     mockableClient.getProfile = vi.fn(() => deferred.promise);
     void controller.restoreProfile();
     controller.handleTerminalRefresh();
-    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'expired' });
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'expired' } });
 
     deferred.resolve(profile);
     await flush();
     await flush();
-    expect(states.at(-1)).toEqual({ kind: 'error', reason: 'expired' });
+    expect(states.at(-1)).toEqual({ kind: 'error', problem: { kind: 'expired' } });
   });
 
   it('whole-session clear cannot be overwritten by a stale profile restore', async () => {

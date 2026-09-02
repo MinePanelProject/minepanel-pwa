@@ -4,6 +4,22 @@ import type { PanelInfo } from '@/api/types';
 import type { InstanceIdentity } from '@/api/query-keys';
 import type { SessionController } from './session-controller';
 
+export type BrowserIncompatibilityReason =
+  | 'insecure-context'
+  | 'web-locks-unavailable';
+
+export type PanelIncompatibilityReason =
+  | 'unsupported-protocol'
+  | 'partitioned-auth-not-advertised';
+
+export type SessionProblem =
+  | { kind: 'offline' }
+  | { kind: 'expired' }
+  | { kind: 'incompatible'; subject: 'browser'; reason: BrowserIncompatibilityReason }
+  | { kind: 'incompatible'; subject: 'panel'; reason: PanelIncompatibilityReason }
+  | { kind: 'hosted-origin-forbidden' }
+  | { kind: 'session-restore-failed' };
+
 export type ShellSession =
   | { kind: 'loading' }
   | { kind: 'anonymous' }
@@ -12,7 +28,7 @@ export type ShellSession =
   | { kind: 'password-change-required' }
   | { kind: 'account-pending' }
   | { kind: 'account-banned' }
-  | { kind: 'error'; reason: 'offline' | 'incompatible' | 'expired' };
+  | { kind: 'error'; problem: SessionProblem };
 
 export type PanelSessionValue = {
   panel: InstanceIdentity | null;

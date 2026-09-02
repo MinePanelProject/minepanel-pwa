@@ -1,5 +1,5 @@
 {
-	"updatedAt": "2026-08-27",
+	"updatedAt": "2026-09-02",
 	"phases": [
 		{
 			"id": "1",
@@ -45,7 +45,7 @@
 			"label": "Phase 1.5",
 			"name": "Hosted Authentication",
 			"status": "completed",
-			"description": "The supported protocol-1 hosted-auth contract is complete: CHIPS partitioned HttpOnly cookies + Web Locks for hosted sessions, with local auth, Google auth, TOTP, account security, and first-admin setup. Optional GitHub OAuth and conditional PKCE compatibility work remain separate future concerns; CHIPS/Web Locks are not universal across browsers.",
+			"description": "The supported protocol-1 hosted-auth contract is complete: CHIPS partitioned HttpOnly cookies + Web Locks for hosted sessions, with local auth, Google auth, TOTP, account security, and first-admin setup. CHIPS/Web Locks are not universal across browsers.",
 			"progress": 100,
 			"progressLabel": "100% complete",
 			"items": [
@@ -76,14 +76,6 @@
 				{
 					"text": "First-admin setup",
 					"done": true
-				},
-				{
-					"text": "[Optional] GitHub OAuth when/if advertised by backend capability",
-					"done": false
-				},
-				{
-					"text": "[Conditional] PKCE authorization-code fallback if full hosted-browser compatibility remains required",
-					"done": false
 				}
 			]
 		},
@@ -156,6 +148,16 @@
 					"done": false
 				}
 			]
+		}
+	],
+	"futureWork": [
+		{
+			"text": "Optional GitHub OAuth identity integration",
+			"status": "optional"
+		},
+		{
+			"text": "Conditional PKCE compatibility fallback if supported-browser requirements expand; not required for the current policy and not implemented",
+			"status": "future"
 		}
 	],
 	"scope": "scope: MinePanel hosted dashboard (minepanel-pwa). This file is the PWA roadmap; it does not redefine the global backend project roadmap."
