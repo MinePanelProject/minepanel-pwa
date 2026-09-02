@@ -153,6 +153,7 @@
 			"id": "future-identity-authentication",
 			"label": "Future Identity / Authentication",
 			"name": "Optional Follow-ons",
+			"description": "Optional identity integrations that remain outside the completed hosted-authentication scope.",
 			"status": "future",
 			"progress": 0,
 			"progressLabel": null,
