@@ -827,9 +827,8 @@ export class BackendClient {
   }
 
   /**
-   * Authorized-request coordinator (architect decision §1, external-review
-   * Finding 1/Finding 7). One 401 while a session may exist is resolved
-   * through the cross-tab refresh broker:
+   * Authorized-request coordinator (ARCHITECTURE.md §7). One 401 while a
+   * session may exist is resolved through the cross-tab refresh broker:
    * - outcome 'profile' -> the original request is retried EXACTLY once. The
    *   original request was rejected by JwtAuthGuard before any controller
    *   processing, so the replay is safe and idempotent.

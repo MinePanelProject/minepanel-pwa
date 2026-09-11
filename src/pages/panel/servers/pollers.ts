@@ -13,10 +13,10 @@ type AccessPoller = {
 };
 
 /**
- * Bounded lifecycle polling per the architecture decision §6: transitional
- * states poll 2s × 30, ERROR polls 10s × 6, and both stop at 60s elapsed.
- * A generation is a returned status value; counters reset only when it
- * changes. Pure module state — never persisted.
+ * Bounded lifecycle polling per the bounded-polling contract (SPEC.md §6):
+ * transitional states poll 2s × 30, ERROR polls 10s × 6, and both stop at 60s
+ * elapsed. A generation is a returned status value; counters reset only when
+ * it changes. Pure module state — never persisted.
  */
 export const createServerPoller = (): ServerPoller => {
   let generation: PollStatus | null = null;
@@ -53,7 +53,7 @@ export const createServerPoller = (): ServerPoller => {
   };
 };
 
-/** Bounded PENDING access-request polling: 5s × 12, capped at 60s (§6). */
+/** Bounded PENDING access-request polling: 5s × 12, capped at 60s (SPEC.md §6). */
 export const createAccessPoller = (): AccessPoller => {
   let generation: AccessStatus | null = null;
   let startedAt = 0;

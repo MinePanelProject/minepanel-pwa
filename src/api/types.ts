@@ -1,10 +1,10 @@
 /**
  * Typed request/response contracts for the MinePanel protocol-1 API.
  *
- * Mirrors the backend's public DTOs and projections exactly (SPEC §7;
- * `PublicUser`/`PublicServer` omit only secrets). Enums are duplicated from
- * `db/schema.ts` — the backend is authoritative; never extend from UI
- * invention.
+ * Mirrors the backend's public DTOs and projections exactly
+ * (minepanel-backend/SPEC.md §7; `PublicUser`/`PublicServer` omit only
+ * secrets). Enums are duplicated from the backend `src/db/schema.ts` — the
+ * backend is authoritative; never extend from UI invention.
  */
 
 // --- Enums ---

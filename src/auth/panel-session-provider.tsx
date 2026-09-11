@@ -21,7 +21,7 @@ type PanelSessionProviderProps = {
 /**
  * Owns all session state for one selected panel. Resets and removes the
  * complete panel query scope on panel switch, unmount, and every
- * authentication boundary (architect decision §3).
+ * authentication boundary (ARCHITECTURE.md §6).
  */
 export const PanelSessionProvider = ({
   panel,

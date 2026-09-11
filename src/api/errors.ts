@@ -21,7 +21,8 @@ export type BackendErrorKind =
   | 'unexpected-response';
 
 /**
- * Machine-readable codes the backend issues (SPEC §7/§8/§12 and guards).
+ * Machine-readable codes the backend issues
+ * (minepanel-backend/SPEC.md §7/§8/§12 and guards).
  * `null` means the response carried no recognized code.
  */
 export type BackendErrorCode =
