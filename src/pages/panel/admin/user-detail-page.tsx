@@ -254,7 +254,7 @@ export const AdminUserDetailPage = (): React.JSX.Element => {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="umami-replay-block grid gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="pixel-label text-accent">[ Administration ]</p>

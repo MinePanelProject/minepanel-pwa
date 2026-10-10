@@ -37,7 +37,7 @@ export const PasswordChangePage = (): React.JSX.Element => {
   };
 
   return (
-    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6" aria-labelledby="recovery-heading">
+    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6 umami-replay-block" aria-labelledby="recovery-heading">
       <div className="grid gap-2"><h1 className="page-title" id="recovery-heading">Set a new password</h1><p className="text-sm text-ink-muted">A password change is required before this account can continue. Your identity is unavailable until the change is complete.</p></div>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       <form className="grid gap-4" onSubmit={(event) => void submit(event)}>

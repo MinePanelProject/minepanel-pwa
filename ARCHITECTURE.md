@@ -263,6 +263,7 @@ arbitrary operator origins.
 | Local device storage | IndexedDB holds panel metadata only; nothing else is persisted |
 | Service worker | Application assets only; it never sees auth or API traffic |
 | Google Identity | Third-party script/frame, explicitly allow-listed in the CSP; only a short-lived ID token crosses it |
+| Analytics (Umami) | Self-hosted, anonymous, cookieless usage statistics and masked, anonymized session replays; allow-listed in the CSP (scripts only); credential/secret surfaces are `umami-replay-block`-excluded |
 | Cross-tab channel | Origin-scoped, credential-free, advisory only |
 
 The dashboard cannot read session tokens, cannot revoke sessions except by calling the backend's own

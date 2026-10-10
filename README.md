@@ -84,7 +84,8 @@ caching, offline mutation queue, background sync, or WebSocket interception; bac
 require the network, while the application shell and the saved-panel registry load offline.
 
 Cloudflare Pages uses the static SPA fallback (`public/_redirects`) and a strict CSP
-(`public/_headers`) whose only remote script/frame exception is Google Identity Services.
+(`public/_headers`) whose remote script/frame exceptions are Google Identity Services and the
+self-hosted Umami analytics origin (scripts only).
 
 ## License
 

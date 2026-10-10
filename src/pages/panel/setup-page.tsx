@@ -73,7 +73,7 @@ export const SetupPage = (): React.JSX.Element => {
   if (status.data?.nextStep === 'complete') return <section className="grid max-w-md gap-4 panel-surface p-6"><h1 className="page-title">Panel already set up</h1><p className="text-sm text-ink-muted">An administrator already exists for this panel.</p><Button onClick={returnToSignIn}>Go to sign in</Button></section>;
 
   return (
-    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6" aria-labelledby="setup-heading">
+    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6 umami-replay-block" aria-labelledby="setup-heading">
       <div><h1 className="page-title" id="setup-heading">Create first administrator</h1><p className="mt-2 text-sm text-ink-muted">Enter the setup token supplied by the panel operator. It is cleared as soon as this request finishes.</p></div>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       <form className="grid gap-4" onSubmit={(event) => void submit(event)}>

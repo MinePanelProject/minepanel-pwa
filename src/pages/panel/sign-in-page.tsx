@@ -120,7 +120,7 @@ export const SignInPage = (): React.JSX.Element => {
   };
 
   return (
-    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6" aria-labelledby="sign-in-heading">
+    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6 umami-replay-block" aria-labelledby="sign-in-heading">
       <div className="grid gap-2">
         <h1 className="page-title" id="sign-in-heading">{mode === 'sign-in' ? 'Sign in' : 'Create account'}</h1>
         <p className="text-sm text-ink-muted">Use your MinePanel account for this selected panel.</p>

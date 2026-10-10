@@ -180,7 +180,7 @@ export const SecurityPage = (): React.JSX.Element => {
   };
 
   return (
-    <section className="grid gap-8" aria-labelledby="security-heading">
+    <section className="umami-replay-block grid gap-8" aria-labelledby="security-heading">
       <div><p className="pixel-label text-accent">[ Security ]</p><h1 className="page-title mt-2" id="security-heading">Security</h1><p className="mt-2 text-sm text-ink-muted">Manage passwords, two-factor authentication, and browser sessions.</p></div>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       {feedback ? <Alert kind="success" role="status">{feedback}</Alert> : null}

@@ -249,9 +249,11 @@ implementation keys the panel-scoped subtree by the immutable identity; this MUS
 
 ### 5.4 Content security `[IMPLEMENTED]`
 
-A strict CSP (`public/_headers`) allows same-origin assets and only Google Identity Services as a
-remote script/frame source; `connect-src` permits `https:`/`wss:` so the browser can reach the
-selected backends. QR enrolment renders locally to canvas. `frame-ancestors 'none'`,
+A strict CSP (`public/_headers`) allows same-origin assets, Google Identity Services as a remote
+script/frame source, and the self-hosted Umami analytics origin (`umami.okazakee.dev`) as a remote
+script source; `connect-src` permits `https:`/`wss:` so the browser can reach the selected backends.
+Credential-entry and secret-display surfaces carry `umami-replay-block` and are excluded from session
+recording; input fields are masked. QR enrolment renders locally to canvas. `frame-ancestors 'none'`,
 `X-Frame-Options: DENY`, `nosniff`, `no-referrer` and a restrictive `Permissions-Policy` are set.
 
 ### 5.5 Cross-tab session advisory `[IMPLEMENTED]`

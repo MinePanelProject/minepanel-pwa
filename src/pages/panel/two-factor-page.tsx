@@ -53,7 +53,7 @@ export const TwoFactorPage = (): React.JSX.Element => {
   if (state.kind !== 'two-factor-pending') return <Alert kind="warning">Two-factor verification is no longer pending.</Alert>;
 
   return (
-    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6" aria-labelledby="two-factor-heading">
+    <section className="mx-auto grid w-full max-w-md gap-6 panel-surface p-6 umami-replay-block" aria-labelledby="two-factor-heading">
       <div className="grid gap-2"><h1 className="page-title" id="two-factor-heading">Two-factor verification</h1><p className="text-sm text-ink-muted">Enter a current authenticator code or one backup code.</p></div>
       {error ? <Alert kind="error" role="alert">{error}</Alert> : null}
       {coolingDown ? <Alert kind="warning" role="status">Try again in {secondsRemaining} seconds.</Alert> : null}
