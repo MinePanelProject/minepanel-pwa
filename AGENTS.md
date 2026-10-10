@@ -107,8 +107,9 @@ The pre-completion gate for any `src/**` change is
   (`protocolVersion === 1` and `partitionedCookies`).
 - **Never branch on a version string for compatibility.** Use `GET /api/info` capability flags and
   degrade gracefully when a flag is absent.
-- **Never widen CSP or add a remote origin** without documenting the resulting security surface; the
-  only remote script/frame source today is Google Identity Services.
+- **Never widen CSP or add a remote origin** without documenting the resulting security surface;
+  remote sources today: Google Identity Services (script/frame) and the self-hosted Umami analytics
+  origin (script; see `SPEC.md` §5.4 and `ARCHITECTURE.md` §11).
 - **Never let socket telemetry become an authority.** Host metrics are display-only and have no HTTP
   fallback.
 - **Never invent a backend endpoint.** If the backend does not implement or advertise it, it does not
